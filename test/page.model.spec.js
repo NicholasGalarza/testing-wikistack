@@ -51,29 +51,69 @@ describe('Page model', function () {
     });
   });
 
-  xdescribe('Instance methods', function () {
-    describe('findSimilar', function (done) {
-      let page1 = Page.create({
+  describe('Instance methods', function () {
+    let page1, page2, page3;
+    beforeEach(function(done){
+       page1 = Page.create({
+        title: 'base',
+        content: 'content',
         tags: ['cats', 'dogs', 'goldfish']
       });
 
-      let page2 = Page.create({
+       page2 = Page.create({
+        title: 'page2',
+        content: 'content',
         tags: ['potatoes', 'celery', 'onions']
       });
 
-      let page3 = Page.create({
-        tags: ['foo', 'foo', 'foo']
+       page3 = Page.create({
+        title: 'page3',
+        content: 'content',
+        tags: ['foo', 'dogs', 'foo']
       });
 
-      it('never gets itself', () => {
-        page.tags = ['cats', 'dogs', 'goldfish'];
-        page.findSimilar();
+      Promise.all([page1, page2, page3])
+      .then(function(pages){
+        page1 = pages[0];
+        page2 = pages[1];
+        page3 = pages[2];
         done();
+      }).catch(done);
+    })
+
+    describe('findSimilar', function () {
+      it('never gets itself', (done) => {
+
+        page1.findSimilar().
+          then(function(pages){
+            pages.should.not.include(page);
+            done();
+
+        }).catch(done);
 
       });
-      it('gets other pages with any common tags');
+
+      it('gets other pages with any common tags', function(done){
+
+          page1.findSimilar().
+          then(function(pages){
+            expect(pages[0].title).to.equal('page3');
+            done();
+          })
+          .catch(done);
+
+      });
+
       it('does not get other pages without any common tags');
     });
+
+    afterEach(function(done){
+      Page.sync({force: true})
+      .then(() => {
+        done();
+      }).catch(done);
+
+  });
   });
 
   describe('Validations', function () {

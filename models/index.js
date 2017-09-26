@@ -13,7 +13,7 @@ var Page = db.define('page', {
     },
     content: {
         type: Sequelize.TEXT,
-        allowNull: false
+        // allowNull: false
     },
     status: {
         type: Sequelize.ENUM('open', 'closed')
